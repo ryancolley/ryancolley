@@ -31,6 +31,10 @@ jobs:
           mkdir -p data
           mkdir -p assets
 
+      - name: Lint Python scripts (syntax only)
+        run: |
+          python -m py_compile scripts/github_contributions.py scripts/render_heatmap.py scripts/update_readme.py
+
       - name: Compute date range (last 365 days)
         id: daterange
         shell: bash
