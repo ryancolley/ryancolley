@@ -185,19 +185,17 @@ def summarize(user: dict, start: str, end: str) -> dict:
         "calendar_days": days
     }
 
+
 def to_md(summary: dict) -> str:
-    """Render a concise Markdown report."""
-    r = summary["range"]
     t = summary["totals"]
     lines = []
-    lines.append(f"### Contributions summary ({r['from']} → {r['to']})")
+    lines.append(f"### Contributions summary (last 12 months)")
     lines.append(f"- Total contributions: **{t['calendar_total']}**")
     lines.append(f"- Commits: **{t['commits']}**, Issues: **{t['issues']}**, "
                  f"PRs: **{t['pull_requests']}**, Reviews: **{t['reviews']}**")
     if t["restricted_contributions_present"]:
         lines.append(f"- Includes anonymized private/internal activity: "
-                     f"**{t['restricted_contributions_count']}** "
-                     f"(since {t['earliest_restricted_contribution_date']})")
+                     f"**{t['restricted_contributions_count']}**")
     lines.append("")
 
     def section(title: str, key: str):
