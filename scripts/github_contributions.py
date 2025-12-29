@@ -5,6 +5,15 @@ Fetch GitHub contributions via GraphQL and output JSON + Markdown summary.
 Usage:
   export GITHUB_TOKEN=your_token
   python scripts/github_contributions.py --out-json data/contributions.json --out-md data/summary.md
+
+IMPORTANT: To get accurate contribution counts including private/org activity:
+1. Ensure your GITHUB_TOKEN has appropriate scopes (read:user, repo)
+2. Go to https://github.com/settings/profile
+3. Enable "Private contributions" (Show private contributions on my profile)
+4. Enable organization contributions visibility in your profile settings
+
+The API will only return contributions that are visible according to your
+privacy settings. Restricted contributions are anonymized but counted.
 """
 import os
 import sys
@@ -20,12 +29,14 @@ except Exception:
 GRAPHQL_ENDPOINT = "https://api.github.com/graphql"
 
 
-QUERY = """
+def build_query(from_date: str, to_date: str) -> str:
+    """Build GraphQL query with explicit date range."""
+    return """
 query {
   viewer {
     login
     name
-    contributionsCollection {
+    contributionsCollection(from: "%s", to: "%s") {
       hasAnyRestrictedContributions
       restrictedContributionsCount
       earliestRestrictedContributionDate
@@ -37,6 +48,7 @@ query {
       totalIssueContributions
       totalPullRequestContributions
       totalPullRequestReviewContributions
+      totalRepositoryContributions
       commitContributionsByRepository(maxRepositories: 100) {
         repository { nameWithOwner isPrivate }
         contributions { totalCount }
@@ -56,14 +68,25 @@ query {
     }
   }
 }
-"""
+""" % (from_date, to_date)
 
 def fetch(token: str) -> dict:
     """Call GitHub GraphQL API to get contributions (viewer = authenticated user)."""
     if requests is None:
         raise RuntimeError("Install 'requests' and run locally/CI.")
+    
+    # Calculate date range: last 365 days from today
+    to_date = datetime.utcnow()
+    from_date = to_date - timedelta(days=365)
+    
+    # Format as ISO 8601 datetime strings (required by GitHub GraphQL API)
+    from_str = from_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    to_str = to_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    
+    query = build_query(from_str, to_str)
+    
     headers = {"Authorization": f"bearer {token}"}
-    payload = {"query": QUERY}
+    payload = {"query": query}
     resp = requests.post(GRAPHQL_ENDPOINT, json=payload, headers=headers)
     resp.raise_for_status()
     data = resp.json()
@@ -97,6 +120,7 @@ def summarize(viewer: dict) -> dict:
             "issues": cc["totalIssueContributions"],
             "pull_requests": cc["totalPullRequestContributions"],
             "reviews": cc["totalPullRequestReviewContributions"],
+            "repositories": cc.get("totalRepositoryContributions", 0),
             "restricted_contributions_present": cc["hasAnyRestrictedContributions"],
             "restricted_contributions_count": cc["restrictedContributionsCount"],
             "earliest_restricted_contribution_date": cc["earliestRestrictedContributionDate"]
@@ -120,6 +144,9 @@ def to_md(summary: dict) -> str:
     lines.append(f"- Total contributions: **{t['calendar_total']}**")
     lines.append(f"- Commits: **{t['commits']}**, Issues: **{t['issues']}**, "
                  f"PRs: **{t['pull_requests']}**, Reviews: **{t['reviews']}**")
+    
+    if t.get('repositories', 0) > 0:
+        lines.append(f"- Repositories contributed to: **{t['repositories']}**")
     
     if t["restricted_contributions_present"]:
         earliest = t.get("earliest_restricted_contribution_date", "N/A")
