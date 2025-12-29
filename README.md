@@ -9,13 +9,14 @@ This profile README updates automatically to showcase my recent GitHub activity.
 
 <!--CONTRIB_SUMMARY_START-->
 ### Contributions summary (2024-12-29 → 2025-12-29)
-- Total contributions: **101**
-- Commits: **21**, Issues: **0**, PRs: **1**, Reviews: **0**
+- Total contributions: **103**
+- Commits: **23**, Issues: **0**, PRs: **1**, Reviews: **0**
 - Repositories contributed to: **1**
-- Includes anonymized private/internal activity: **78** (since 2025-01-24)
+- ⚠️ **78 restricted contributions** (private/org activity not fully accessible) — earliest: 2025-01-24
+- 💡 If this number is high, check token permissions for full org access
 
 #### Top commit repos
-- **ryancolley/ryancolley**: 21
+- **ryancolley/ryancolley**: 23
 
 #### Top PR repos
 - **ryancolley/ryancolley**: 1
