@@ -1,12 +1,3 @@
-
-# Hi, I'm Ryan Colley 👋
-
-This profile README updates automatically to showcase my recent GitHub activity.
-
-> Private/internal work is included as anonymized counts only.
-
-
-<!--CONTRIB_SUMMARY_START-->
 ### Contributions summary (2024-12-29 → 2025-12-29)
 - Total contributions: **91**
 - Commits: **11**, Issues: **0**, PRs: **1**, Reviews: **0**
@@ -23,7 +14,3 @@ _No data_
 
 #### Top reviewed repos
 _No data_
-
-![Contributions heatmap](assets/contributions_heatmap.svg)
-<!--CONTRIB_SUMMARY_END-->
-
