@@ -2,17 +2,23 @@
 name: Update contributions
 
 on:
-  # Manual trigger from the Actions tab
+  # Manual button in Actions tab
   workflow_dispatch: {}
-  # Scheduled run — every day at 02:00 UTC (adjust as you like)
+
+  # Daily scheduled run at 02:00 UTC (adjust as needed).
+  # NOTE: quote the string because '*' is special in YAML.
   schedule:
     - cron: '0 2 * * *'
 
-# Principle of least privilege for the workflow token
-permissions:
-  contents: write  # required to commit README/assets/data back to the repo
+  # Run once after the workflow lands on the default branch (bootstrap)
+  push:
+    branches:
+      - main   # <-- CHANGE if your default branch isn't 'main'
 
-# Prevent overlapping runs of this workflow/branch
+permissions:
+  contents: write  # allow committing README/assets/data back to the repo
+
+# Avoid overlapping runs for this branch
 concurrency:
   group: update-contributions-${{ github.ref }}
   cancel-in-progress: false
@@ -22,10 +28,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Diagnostic — show event & branch
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref:   ${{ github.ref }}"
+          echo "Actor: ${{ github.actor }}"
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -47,9 +59,10 @@ jobs:
             scripts/render_heatmap.py \
             scripts/update_readme.py
 
-      # Fetch "last 12 months" contributions as the authenticated viewer
-      # NOTE: scripts/github_contributions.py should now use the `viewer` query
-      # and NO explicit `from/to` args. It should accept only --out-json/--out-md.
+      # Uses your fine‑grained PAT (owned by you) so GraphQL queries run
+      # as the *viewer* and include private/internal counts when enabled
+      # in profile Contribution settings.
+      # See: Private contributions visibility and viewer queries. 
       - name: Fetch contributions via GraphQL (viewer, last 12 months)
         env:
           GITHUB_TOKEN: ${{ secrets.GH_CONTRIB_TOKEN }}
@@ -58,9 +71,8 @@ jobs:
             --out-json data/contributions.json \
             --out-md   data/summary.md
 
-      # Render light + dark heatmaps from the JSON
-      # NOTE: scripts/render_heatmap.py must accept 3 args:
-      #   input_json, output_light_svg, output_dark_svg
+      # Render light + dark heatmaps; script must accept 3 args:
+      # input_json, output_light_svg, output_dark_svg
       - name: Render heatmap SVGs (light + dark)
         run: |
           python scripts/render_heatmap.py \
@@ -68,10 +80,8 @@ jobs:
             assets/contributions_heatmap_light.svg \
             assets/contributions_heatmap_dark.svg
 
-      # Update README.md between markers with the summary + <picture> block
-      # NOTE: scripts/update_readme.py now injects a <picture> element that
-      # selects light/dark SVGs via prefers-color-scheme.
-      - name: Update README with latest summary and heatmap
+      # Update README between markers with the summary + <picture> block
+      - name: Update README
         run: |
           python scripts/update_readme.py data/summary.md README.md
 
@@ -86,4 +96,3 @@ jobs:
           else
             echo "No changes to commit."
           fi
-``
