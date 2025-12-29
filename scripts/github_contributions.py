@@ -20,12 +20,13 @@ except Exception:
 
 GRAPHQL_ENDPOINT = "https://api.github.com/graphql"
 
+
 QUERY = """
-query($username: String!, $from: DateTime!, $to: DateTime!) {
-  user(login: $username) {
+query {
+  viewer {
     login
     name
-    contributionsCollection(from: $from, to: $to) {
+    contributionsCollection {
       hasAnyRestrictedContributions
       restrictedContributionsCount
       earliestRestrictedContributionDate
@@ -56,6 +57,79 @@ query($username: String!, $from: DateTime!, $to: DateTime!) {
     }
   }
 }
+"""
+
+def fetch(token: str) -> dict:
+    import requests
+    headers = {"Authorization": f"bearer {token}"}
+    payload = {"query": QUERY}
+    resp = requests.post(GRAPHQL_ENDPOINT, json=payload, headers=headers)
+    resp.raise_for_status()
+    data = resp.json()
+    if "errors" in data:
+        raise RuntimeError(json.dumps(data["errors"], indent=2))
+    # Note: top field is 'viewer' now
+    return data["data"]["viewer"]
+
+def summarize(viewer: dict) -> dict:
+    user = viewer
+    cc = user["contributionsCollection"]
+    cal = cc["contributionCalendar"]
+    days = [{"date": d["date"], "count": d["contributionCount"], "level": d["contributionLevel"]}
+            for w in cal["weeks"] for d in w["contributionDays"]]
+    def conv(entries):
+        return [{"repo": e["repository"]["nameWithOwner"],
+                 "isPrivate": e["repository"]["isPrivate"],
+                 "count": e["contributions"]["totalCount"]}
+                for e in entries]
+    return {
+        "user": {"login": viewer["login"], "name": viewer.get("name")},
+        "range": {"from": "profile-last-year", "to": "profile-last-year"},  # descriptive placeholders
+        "totals": {
+            "calendar_total": cal["totalContributions"],
+            "commits": cc["totalCommitContributions"],
+            "issues": cc["totalIssueContributions"],
+            "pull_requests": cc["totalPullRequestContributions"],
+            "reviews": cc["totalPullRequestReviewContributions"],
+            "restricted_contributions_present": cc["hasAnyRestrictedContributions"],
+            "restricted_contributions_count": cc["restrictedContributionsCount"],
+            "earliest_restricted_contribution_date": cc["earliestRestrictedContributionDate"]
+        },
+        "by_repository": {
+            "commits": conv(cc["commitContributionsByRepository"]),
+            "issues": conv(cc["issueContributionsByRepository"]),
+            "pull_requests": conv(cc["pullRequestContributionsByRepository"]),
+            "reviews": conv(cc["pullRequestReviewContributionsByRepository"])
+        },
+        "calendar_days": days
+    }
+
+def main():
+    ap = argparse.ArgumentParser(description="Export GitHub contributions (profile last year)")
+    # username/from/to are no longer needed
+    ap.add_argument("--out-json", required=True)
+    ap.add_argument("--out-md", required=True)
+    args = ap.parse_args()
+
+    token = os.getenv("GITHUB_TOKEN")
+    if not token:
+        print("GITHUB_TOKEN env var required", file=sys.stderr)
+        sys.exit(1)
+
+    viewer = fetch(token)
+    summary = summarize(viewer)
+
+    os.makedirs(os.path.dirname(args.out_json), exist_ok=True)
+    os.makedirs(os.path.dirname(args.out_md), exist_ok=True)
+
+    with open(args.out_json, "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2)
+
+    md = to_md(summary)
+    with open(args.out_md, "w", encoding="utf-8") as f:
+        f.write(md)
+    print(f"Wrote {args.out_json} and {args.out_md}")
+
 """
 
 def fetch(token: str, username: str, start: str, end: str) -> dict:
