@@ -148,12 +148,26 @@ def to_md(summary: dict) -> str:
     if t.get('repositories', 0) > 0:
         lines.append(f"- Repositories contributed to: **{t['repositories']}**")
     
+    # Calculate activity breakdown percentages
+    total_activities = t['commits'] + t['issues'] + t['pull_requests'] + t['reviews']
+    if total_activities > 0:
+        commit_pct = (t['commits'] / total_activities) * 100
+        pr_pct = (t['pull_requests'] / total_activities) * 100
+        review_pct = (t['reviews'] / total_activities) * 100
+        issue_pct = (t['issues'] / total_activities) * 100
+        
+        lines.append("")
+        lines.append("#### Activity overview")
+        lines.append(f"- 💻 Commits: **{commit_pct:.0f}%**")
+        lines.append(f"- 🔀 Pull requests: **{pr_pct:.0f}%**")
+        lines.append(f"- 👁️ Code review: **{review_pct:.0f}%**")
+        lines.append(f"- 🐛 Issues: **{issue_pct:.0f}%**")
+    
     if t["restricted_contributions_present"]:
         earliest = t.get("earliest_restricted_contribution_date", "N/A")
-        lines.append(f"- ⚠️ **{t['restricted_contributions_count']} restricted contributions** "
-                     f"(private/org activity not fully accessible)"
-                     f"{f' — earliest: {earliest}' if earliest and earliest != 'N/A' else ''}")
-        lines.append(f"- 💡 If this number is high, check token permissions for full org access")
+        lines.append("")
+        lines.append(f"- 🔒 Includes anonymized private/internal activity: **{t['restricted_contributions_count']}**"
+                     f"{f' (since {earliest})' if earliest and earliest != 'N/A' else ''}")
     lines.append("")
 
     def section(title: str, key: str):
