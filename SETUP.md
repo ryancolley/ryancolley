@@ -30,9 +30,16 @@ The workflow uses GitHub's GraphQL API with the `viewer` query, which allows you
    - **Name**: `GH_CONTRIB_TOKEN` (or any descriptive name)
    - **Expiration**: Choose appropriate duration (90 days, 1 year, etc.)
    - **Resource owner**: Select yourself
-   - **Permissions**: You don't need any specific repository permissions
-     - The token only needs to authenticate you as the viewer
-     - GitHub automatically includes your contribution data when you're authenticated
+   - **Repository access**: Choose "All repositories" OR select specific repos
+   - **Permissions** (Account permissions section):
+     - ✅ **Read access to metadata** (usually enabled by default)
+   - **Organization permissions** (if you have org contributions):
+     - ✅ **Read access to members** (for org contributions)
+
+   **Important for Fine-Grained Tokens:**
+   - If using a classic token instead, ensure it has: `read:user`, `repo`, `read:org` scopes
+   - Fine-grained tokens need "All repositories" access to count contributions across all your repos
+   - For organizations, you may need org admin to authorize the token
 
 4. Click "Generate token" and copy it
 
@@ -129,9 +136,25 @@ The workflow automatically installs:
 - `assets/contributions_heatmap_dark.svg` - Dark mode heatmap
 - `README.md` - Updated with latest summary
 
-## Token Permissions
+## Token Permissions Explained
 
-The fine-grained PAT requires **no specific permissions** because:
-- It only reads your own profile data via the `viewer` query
-- Private contributions are included when YOU query YOUR OWN data
-- No repository access is needed
+### Why Repository Access is Needed
+
+Even though you're querying your own data, GitHub's GraphQL API requires proper authorization:
+
+**Fine-Grained Token:**
+- Needs **"All repositories"** access (or at minimum, all repos you've contributed to)
+- Needs **organization permissions** if you have org contributions
+- Without these, contributions show as "restricted" (anonymized)
+
+**Classic Token (Alternative):**
+- Scopes needed: `read:user`, `repo`, `read:org`
+- Simpler but less secure than fine-grained tokens
+- To create: https://github.com/settings/tokens (select "Tokens (classic)")
+
+### If Most Contributions Show as "Restricted"
+
+This means the token can see you HAVE contributions but can't access the details:
+1. **Regenerate token** with "All repositories" access
+2. **Check organization settings** - org admin may need to approve the token
+3. **Try a classic token** with full scopes if fine-grained tokens have issues

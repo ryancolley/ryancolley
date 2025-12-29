@@ -150,9 +150,10 @@ def to_md(summary: dict) -> str:
     
     if t["restricted_contributions_present"]:
         earliest = t.get("earliest_restricted_contribution_date", "N/A")
-        lines.append(f"- Includes anonymized private/internal activity: "
-                     f"**{t['restricted_contributions_count']}**"
-                     f"{f' (since {earliest})' if earliest and earliest != 'N/A' else ''}")
+        lines.append(f"- ⚠️ **{t['restricted_contributions_count']} restricted contributions** "
+                     f"(private/org activity not fully accessible)"
+                     f"{f' — earliest: {earliest}' if earliest and earliest != 'N/A' else ''}")
+        lines.append(f"- 💡 If this number is high, check token permissions for full org access")
     lines.append("")
 
     def section(title: str, key: str):
@@ -185,6 +186,16 @@ def main():
 
     viewer = fetch(token)
     summary = summarize(viewer)
+    
+    # Diagnostic output
+    totals = summary["totals"]
+    print(f"✓ Fetched contributions for: {summary['user']['login']}")
+    print(f"  Total: {totals['calendar_total']} | Commits: {totals['commits']} | "
+          f"PRs: {totals['pull_requests']} | Issues: {totals['issues']} | Reviews: {totals['reviews']}")
+    if totals["restricted_contributions_present"]:
+        print(f"  ⚠️  {totals['restricted_contributions_count']} restricted contributions detected")
+        print(f"      This suggests limited access to private/org repos.")
+        print(f"      Check token has 'All repositories' access + org permissions enabled.")
 
     # Safety: create output folders if missing
     os.makedirs(os.path.dirname(args.out_json) or ".", exist_ok=True)
