@@ -2,18 +2,27 @@
 name: Update contributions
 
 on:
+  # Manual trigger from the Actions tab
   workflow_dispatch: {}
+  # Scheduled run — every day at 02:00 UTC (adjust as you like)
   schedule:
-    - cron: '17 3 * * 1'  # Every Monday at 03:17 UTC
+    - cron: '0 2 * * *'
 
+# Principle of least privilege for the workflow token
 permissions:
-  contents: write  # allow pushing README/assets
+  contents: write  # required to commit README/assets/data back to the repo
+
+# Prevent overlapping runs of this workflow/branch
+concurrency:
+  group: update-contributions-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -33,33 +42,36 @@ jobs:
 
       - name: Lint Python scripts (syntax only)
         run: |
-          python -m py_compile scripts/github_contributions.py scripts/render_heatmap.py scripts/update_readme.py
+          python -m py_compile \
+            scripts/github_contributions.py \
+            scripts/render_heatmap.py \
+            scripts/update_readme.py
 
-      - name: Compute date range (last 365 days)
-        id: daterange
-        shell: bash
-        run: |
-          TO=$(date -u +"%Y-%m-%d")
-          FROM=$(date -u -d "365 days ago" +"%Y-%m-%d")
-          echo "from=$FROM" >> $GITHUB_OUTPUT
-          echo "to=$TO" >> $GITHUB_OUTPUT
-
-      - name: Fetch contributions via GraphQL
+      # Fetch "last 12 months" contributions as the authenticated viewer
+      # NOTE: scripts/github_contributions.py should now use the `viewer` query
+      # and NO explicit `from/to` args. It should accept only --out-json/--out-md.
+      - name: Fetch contributions via GraphQL (viewer, last 12 months)
         env:
           GITHUB_TOKEN: ${{ secrets.GH_CONTRIB_TOKEN }}
         run: |
           python scripts/github_contributions.py \
-            --username ryancolley \
-            --from "${{ steps.daterange.outputs.from }}" \
-            --to   "${{ steps.daterange.outputs.to }}" \
             --out-json data/contributions.json \
             --out-md   data/summary.md
 
+      # Render light + dark heatmaps from the JSON
+      # NOTE: scripts/render_heatmap.py must accept 3 args:
+      #   input_json, output_light_svg, output_dark_svg
       - name: Render heatmap SVGs (light + dark)
         run: |
-          python scripts/render_heatmap.py data/contributions.json assets/contributions_heatmap_light.svg assets/contributions_heatmap_dark.svg
+          python scripts/render_heatmap.py \
+            data/contributions.json \
+            assets/contributions_heatmap_light.svg \
+            assets/contributions_heatmap_dark.svg
 
-      - name: Update README with latest summary
+      # Update README.md between markers with the summary + <picture> block
+      # NOTE: scripts/update_readme.py now injects a <picture> element that
+      # selects light/dark SVGs via prefers-color-scheme.
+      - name: Update README with latest summary and heatmap
         run: |
           python scripts/update_readme.py data/summary.md README.md
 
@@ -67,10 +79,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md assets/contributions_heatmap.svg data/*
+          git add README.md assets/*.svg data/*
           if ! git diff --cached --quiet; then
-            git commit -m "chore: update contributions ($(date -u +%F))"
+            git commit -m "chore: update contributions (auto, $(date -u +%F))"
             git push
           else
             echo "No changes to commit."
           fi
+``
