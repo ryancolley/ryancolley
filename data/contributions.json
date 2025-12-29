@@ -8,11 +8,12 @@
     "to": "2025-12-29"
   },
   "totals": {
-    "calendar_total": 100,
-    "commits": 20,
+    "calendar_total": 101,
+    "commits": 21,
     "issues": 0,
     "pull_requests": 1,
     "reviews": 0,
+    "repositories": 1,
     "restricted_contributions_present": true,
     "restricted_contributions_count": 78,
     "earliest_restricted_contribution_date": "2025-01-24"
@@ -22,7 +23,7 @@
       {
         "repo": "ryancolley/ryancolley",
         "isPrivate": false,
-        "count": 20
+        "count": 21
       }
     ],
     "issues": [],
@@ -1863,7 +1864,7 @@
     },
     {
       "date": "2025-12-29",
-      "count": 22,
+      "count": 23,
       "level": "FOURTH_QUARTILE"
     }
   ]
