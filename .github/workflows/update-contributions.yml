@@ -55,9 +55,9 @@ jobs:
             --out-json data/contributions.json \
             --out-md   data/summary.md
 
-      - name: Render heatmap SVG
+      - name: Render heatmap SVGs (light + dark)
         run: |
-          python scripts/render_heatmap.py data/contributions.json assets/contributions_heatmap.svg
+          python scripts/render_heatmap.py data/contributions.json assets/contributions_heatmap_light.svg assets/contributions_heatmap_dark.svg
 
       - name: Update README with latest summary
         run: |
