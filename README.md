@@ -26,9 +26,9 @@ _No data_
 _No data_
 
 <picture>
-  assets/contributions_heatmap_dark.svg
-  assets/contributions_heatmap_light.svg
-  assets/contributions_heatmap_light.svg
+  <source media="(prefers-color-scheme: dark)" srcset="assets/contributions_heatmap_dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/contributions_heatmap_light.svg">
+  <img alt="Contribution Heatmap" src="assets/contributions_heatmap_light.svg">
 </picture>
 <!--CONTRIB_SUMMARY_END-->
 

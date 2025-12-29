@@ -15,11 +15,12 @@ end_marker = '<!--CONTRIB_SUMMARY_END-->'
 summary = summary_path.read_text(encoding='utf-8')
 readme = readme_path.read_text(encoding='utf-8')
 
+# Correct picture block with proper img tags
 picture_block = (
     '<picture>\n'
-    '  assets/contributions_heatmap_dark.svg\n'
-    '  assets/contributions_heatmap_light.svg\n'
-    '  assets/contributions_heatmap_light.svg\n'
+    '  <source media="(prefers-color-scheme: dark)" srcset="assets/contributions_heatmap_dark.svg">\n'
+    '  <source media="(prefers-color-scheme: light)" srcset="assets/contributions_heatmap_light.svg">\n'
+    '  <img alt="Contribution Heatmap" src="assets/contributions_heatmap_light.svg">\n'
     '</picture>\n'
 )
 
@@ -29,7 +30,7 @@ if start_marker not in readme or end_marker not in readme:
 else:
     pre, rest = readme.split(start_marker, 1)
     cur, post = rest.split(end_marker, 1)
-    new_block = f"\n{start_marker}\n{summary}\n{picture_block}{end_marker}\n"
+    new_block = f"{start_marker}\n{summary}\n{picture_block}{end_marker}"
     readme = pre + new_block + post
 
 readme_path.write_text(readme, encoding='utf-8')
