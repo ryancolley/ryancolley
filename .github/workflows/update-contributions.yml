@@ -26,6 +26,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests matplotlib
 
+      - name: Ensure output folders exist
+        run: |
+          mkdir -p data
+          mkdir -p assets
+
       - name: Compute date range (last 365 days)
         id: daterange
         shell: bash
