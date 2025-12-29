@@ -15,15 +15,23 @@ end_marker = '<!--CONTRIB_SUMMARY_END-->'
 summary = summary_path.read_text(encoding='utf-8')
 readme = readme_path.read_text(encoding='utf-8')
 
+picture_block = (
+    '<picture>\n'
+    '  assets/contributions_heatmap_dark.svg\n'
+    '  assets/contributions_heatmap_light.svg\n'
+    '  assets/contributions_heatmap_light.svg\n'
+    '</picture>\n'
+)
+
 if start_marker not in readme or end_marker not in readme:
-    # append section
-    block = f"\n\n{start_marker}\n{summary}\n![Contributions heatmap](assets/contributions_heatmap.svg)\n{end_marker}\n"
+    block = f"\n\n{start_marker}\n{summary}\n{picture_block}{end_marker}\n"
     readme += block
 else:
     pre, rest = readme.split(start_marker, 1)
     cur, post = rest.split(end_marker, 1)
-    new_block = f"\n{start_marker}\n{summary}\n![Contributions heatmap](assets/contributions_heatmap.svg)\n{end_marker}\n"
+    new_block = f"\n{start_marker}\n{summary}\n{picture_block}{end_marker}\n"
     readme = pre + new_block + post
 
 readme_path.write_text(readme, encoding='utf-8')
 print('README updated.')
+
