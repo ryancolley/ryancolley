@@ -1,65 +1,150 @@
 
-# Render contributions heatmap SVG from JSON produced by github_contributions.py
-import json, sys
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
-import numpy as np
-from matplotlib.colors import ListedColormap, BoundaryNorm
+# -*- coding: utf-8 -*-
+"""
+Fetch GitHub contributions via GraphQL and output JSON + Markdown summary.
+Usage:
+  export GITHUB_TOKEN=your_token
+  python scripts/github_contributions.py --username USER --from 2025-01-01 --to 2025-12-31 \
+    --out-json data/contributions.json --out-md data/summary.md
+"""
+import os, sys, json, argparse
+try:
+    import requests
+except Exception:
+    requests = None
 
-if len(sys.argv) < 3:
-    print('Usage: python scripts/render_heatmap.py data/contributions.json assets/contributions_heatmap.svg')
-    sys.exit(1)
+GRAPHQL_ENDPOINT = "https://api.github.com/graphql"
 
-in_json, out_svg = sys.argv[1], sys.argv[2]
+QUERY = """
+query($username: String!, $from: DateTime!, $to: DateTime!) {
+  user(login: $username) {
+    login
+    name
+    contributionsCollection(from: $from, to: $to) {
+      hasAnyRestrictedContributions
+      restrictedContributionsCount
+      earliestRestrictedContributionDate
+      contributionCalendar {
+        totalContributions
+        weeks { contributionDays { date contributionCount contributionLevel } }
+      }
+      totalCommitContributions
+      totalIssueContributions
+      totalPullRequestContributions
+      totalPullRequestReviewContributions
+      commitContributionsByRepository(maxRepositories: 100) {
+        repository { nameWithOwner isPrivate }
+        contributions { totalCount }
+      }
+      issueContributionsByRepository(maxRepositories: 100) {
+        repository { nameWithOwner isPrivate }
+        contributions { totalCount }
+      }
+      pullRequestContributionsByRepository(maxRepositories: 100) {
+        repository { nameWithOwner isPrivate }
+        contributions { totalCount }
+      }
+      pullRequestReviewContributionsByRepository(maxRepositories: 100) {
+        repository { nameWithOwner isPrivate }
+        contributions { totalCount }
+      }
+    }
+  }
+}
+"""
 
-# Load data
-with open(in_json, 'r', encoding='utf-8') as f:
-    data = json.load(f)
+def fetch(token, username, start, end):
+    if requests is None:
+        raise RuntimeError("Install requests and run locally/CI.")
+    headers = {"Authorization": f"bearer {token}"}
+    payload = {"query": QUERY, "variables": {"username": username, "from": f"{start}T00:00:00Z", "to": f"{end}T23:59:59Z"}}
+    r = requests.post(GRAPHQL_ENDPOINT, json=payload, headers=headers)
+    r.raise_for_status()
+    j = r.json()
+    if 'errors' in j:
+        raise RuntimeError(json.dumps(j['errors'], indent=2))
+    return j['data']['user']
 
-# Extract (date, count) pairs
-days = [(datetime.strptime(d['date'], '%Y-%m-%d').date(), d['count']) for d in data.get('calendar_days', [])]
+def summarize(user, start, end):
+    cc = user['contributionsCollection']
+    cal = cc['contributionCalendar']
+    days = [{"date": d['date'], "count": d['contributionCount'], "level": d['contributionLevel']}
+            for w in cal['weeks'] for d in w['contributionDays']]
+    def conv(entries):
+        return [{"repo": e['repository']['nameWithOwner'], "isPrivate": e['repository']['isPrivate'], "count": e['contributions']['totalCount']} for e in entries]
+    return {
+        "user": {"login": user['login'], "name": user.get('name')},
+        "range": {"from": start, "to": end},
+        "totals": {
+            "calendar_total": cal['totalContributions'],
+            "commits": cc['totalCommitContributions'],
+            "issues": cc['totalIssueContributions'],
+            "pull_requests": cc['totalPullRequestContributions'],
+            "reviews": cc['totalPullRequestReviewContributions'],
+            "restricted_contributions_present": cc['hasAnyRestrictedContributions'],
+            "restricted_contributions_count": cc['restrictedContributionsCount'],
+            "earliest_restricted_contribution_date": cc['earliestRestrictedContributionDate']
+        },
+        "by_repository": {
+            "commits": conv(cc['commitContributionsByRepository']),
+            "issues": conv(cc['issueContributionsByRepository']),
+            "pull_requests": conv(cc['pullRequestContributionsByRepository']),
+            "reviews": conv(cc['pullRequestReviewContributionsByRepository'])
+        },
+        "calendar_days": days
+    }
 
-# If no data, write a placeholder SVG
-if not days:
-    fig = plt.figure(figsize=(10, 1))
-    plt.text(0.5, 0.5, 'No data', ha='center', va='center')
-    plt.axis('off')
-    fig.savefig(out_svg, bbox_inches='tight')
-    sys.exit(0)
+def to_md(summary):
+    r = summary['range']; t = summary['totals']
+    out = []
+    out.append(f"### Contributions summary ({r['from']} → {r['to']})")
+    out.append(f"- Total contributions: **{t['calendar_total']}**")
+    out.append(f"- Commits: **{t['commits']}**, Issues: **{t['issues']}**, PRs: **{t['pull_requests']}**, Reviews: **{t['reviews']}**")
+    if t['restricted_contributions_present']:
+        out.append(f"- Includes anonymized private/internal activity: **{t['restricted_contributions_count']}** (since {t['earliest_restricted_contribution_date']})")
+    out.append("")
+    def sec(title, key):
+        items = sorted(summary['by_repository'][key], key=lambda e: e['count'], reverse=True)[:10]
+        out.append(f"#### Top {title}")
+        if not items:
+            out.append("_No data_")
+        else:
+            for e in items:
+                out.append(f"- **{e['repo']}**: {e['count']}{' (private)' if e['isPrivate'] else ''}")
+        out.append("")
+    sec("commit repos", "commits")
+    sec("PR repos", "pull_requests")
+    sec("issue repos", "issues")
+    sec("reviewed repos", "reviews")
+    return "\n".join(out)
 
-# Align to the Sunday of the first week represented
-start = min(d for d, _ in days)
-if start.weekday() != 6:  # Monday=0 ... Sunday=6
-    start = start - timedelta(days=(start.weekday() + 1))
+if __name__ == '__main__':
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--username', required=True)
+    ap.add_argument('--from', dest='start', required=True)
+    ap.add_argument('--to', dest='end', required=True)
+    ap.add_argument('--out-json', required=True)
+    ap.add_argument('--out-md', required=True)
+    args = ap.parse_args()
 
-counts = {d: c for d, c in days}
-end = max(d for d, _ in days)
+    token = os.getenv('GITHUB_TOKEN')
+    if not token:
+        print('GITHUB_TOKEN env var required', file=sys.stderr)
+        sys.exit(1)
 
-# Build grid: rows=Sun..Sat, cols=weeks
-weeks = []
-cur = start
-while cur <= end:
-    sunday = cur if cur.weekday() == 6 else cur - timedelta(days=(cur.weekday() + 1))
-    week_counts = [counts.get(sunday + timedelta(days=o), 0) for o in range(7)]
-    weeks.append(week_counts)
-    cur = sunday + timedelta(days=7)
+    user = fetch(token, args.username, args.start, args.end)
+    summary = summarize(user, args.start, args.end)
 
-arr = np.array(weeks).T  # shape (7, n_weeks). Row 0 = Sunday
+    # Ensure output dirs exist
+    os.makedirs(os.path.dirname(args.out_json), exist_ok=True)
+    os.makedirs(os.path.dirname(args.out_md), exist_ok=True)
 
-# GitHub-style palette and bins
-colors = ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39']
-cmap = ListedColormap(colors)
-bounds = [0, 1, 4, 7, 10, 1000]  # 0, 1-3, 4-6, 7-9, 10+
-norm = BoundaryNorm(bounds, cmap.N)
+    with open(args.out_json, 'w', encoding='utf-8') as f:
+        json.dump(summary, f, indent=2)
 
-h, w = arr.shape
-fig_height = 1.8
-fig_width = max(w * 0.18, 3)  # ensure minimum width so tiny weeks are still visible
+    md = to_md(summary)
+    with open(args.out_md, 'w', encoding='utf-8') as f:
+        f.write(md)
 
-fig, ax = plt.subplots(figsize=(fig_width, fig_height))
-ax.imshow(arr, aspect='auto', cmap=cmap, norm=norm, origin='lower')
-ax.set_axis_off()
-
-fig.savefig(out_svg, bbox_inches='tight', transparent=True)
+    print(f"Wrote {args.out_json} and {args.out_md}")
+``
