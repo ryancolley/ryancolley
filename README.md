@@ -1,10 +1,8 @@
 
 # Hi, I'm Ryan Colley 👋
 
-This profile README updates automatically to showcase my recent GitHub activity.
-
-> Private/internal work is included as anonymized counts only.
-
+This profile README updates automatically to showcase my recent GitHub activity 
+> Private/internal work is included as anonymised counts only...Sadly Organisation activies are not permitted to be scraped
 
 
 <!--CONTRIB_SUMMARY_START-->
@@ -19,7 +17,7 @@ This profile README updates automatically to showcase my recent GitHub activity.
 - 👁️ Code review: **0%**
 - 🐛 Issues: **0%**
 
-- 🔒 Includes anonymized private/internal activity: **83** (since 2025-01-24)
+- 🔒 Includes anonymised private/internal activity: **83** (since 2025-01-24)
 
 #### Top commit repos
 - **ryancolley/ryancolley**: 24
