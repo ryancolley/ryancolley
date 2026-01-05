@@ -6,7 +6,7 @@ This profile README updates automatically to showcase my recent GitHub activity
 
 
 <!--CONTRIB_SUMMARY_START-->
-### Contributions summary (2025-01-05 → 2026-01-04)
+### Contributions summary (2025-01-05 → 2026-01-05)
 - Total contributions: **111**
 - Commits: **25**, Issues: **0**, PRs: **1**, Reviews: **0**
 - Repositories contributed to: **1**
