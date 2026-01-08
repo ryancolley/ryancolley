@@ -4,18 +4,18 @@
     "name": null
   },
   "range": {
-    "from": "2025-01-07",
-    "to": "2026-01-07"
+    "from": "2025-01-08",
+    "to": "2026-01-08"
   },
   "totals": {
-    "calendar_total": 115,
+    "calendar_total": 117,
     "commits": 25,
     "issues": 0,
     "pull_requests": 1,
     "reviews": 0,
     "repositories": 1,
     "restricted_contributions_present": true,
-    "restricted_contributions_count": 88,
+    "restricted_contributions_count": 90,
     "earliest_restricted_contribution_date": "2025-01-24"
   },
   "by_repository": {
@@ -37,11 +37,6 @@
     "reviews": []
   },
   "calendar_days": [
-    {
-      "date": "2025-01-07",
-      "count": 0,
-      "level": "NONE"
-    },
     {
       "date": "2025-01-08",
       "count": 0,
@@ -1365,7 +1360,7 @@
     {
       "date": "2025-09-29",
       "count": 3,
-      "level": "THIRD_QUARTILE"
+      "level": "SECOND_QUARTILE"
     },
     {
       "date": "2025-09-30",
@@ -1380,7 +1375,7 @@
     {
       "date": "2025-10-02",
       "count": 4,
-      "level": "FOURTH_QUARTILE"
+      "level": "THIRD_QUARTILE"
     },
     {
       "date": "2025-10-03",
@@ -1550,17 +1545,17 @@
     {
       "date": "2025-11-05",
       "count": 4,
-      "level": "FOURTH_QUARTILE"
+      "level": "THIRD_QUARTILE"
     },
     {
       "date": "2025-11-06",
       "count": 3,
-      "level": "THIRD_QUARTILE"
+      "level": "SECOND_QUARTILE"
     },
     {
       "date": "2025-11-07",
       "count": 3,
-      "level": "THIRD_QUARTILE"
+      "level": "SECOND_QUARTILE"
     },
     {
       "date": "2025-11-08",
@@ -1625,7 +1620,7 @@
     {
       "date": "2025-11-20",
       "count": 3,
-      "level": "THIRD_QUARTILE"
+      "level": "SECOND_QUARTILE"
     },
     {
       "date": "2025-11-21",
@@ -1720,7 +1715,7 @@
     {
       "date": "2025-12-09",
       "count": 3,
-      "level": "THIRD_QUARTILE"
+      "level": "SECOND_QUARTILE"
     },
     {
       "date": "2025-12-10",
@@ -1864,8 +1859,13 @@
     },
     {
       "date": "2026-01-07",
-      "count": 4,
+      "count": 6,
       "level": "FOURTH_QUARTILE"
+    },
+    {
+      "date": "2026-01-08",
+      "count": 0,
+      "level": "NONE"
     }
   ]
 }
