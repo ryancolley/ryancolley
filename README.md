@@ -1,12 +1,12 @@
 
 # Hi, I'm Ryan Colley 👋
 
-This profile README updates automatically to showcase my recent GitHub activity 
-> Private/internal work is included as anonymised counts only...Sadly Organisation activies are not permitted to be scraped
+This profile README updates automatically to showcase my personal recent GitHub activity 
+> Private/internal work is included as anonymised counts only...Sadly my organisation activies are not permitted to be scraped
 
 
 <!--CONTRIB_SUMMARY_START-->
-### Contributions summary (2025-01-23 → 2026-01-23)
+### Personal contributions summary (2025-01-23 → 2026-01-23)
 - Total contributions: **124**
 - Commits: **25**, Issues: **0**, PRs: **1**, Reviews: **0**
 - Repositories contributed to: **1**
