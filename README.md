@@ -1,7 +1,7 @@
 
 # Hi, I'm Ryan Colley 👋
 
-This profile README updates automatically to showcase my personal recent GitHub activity 
+This profile README updates automatically to showcase my recent personal GitHub activity 
 > Private/internal work is included as anonymised counts only...Sadly my organisation activies are not permitted to be scraped
 
 
