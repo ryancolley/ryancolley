@@ -1,4 +1,4 @@
-### Contributions summary (2025-03-30 → 2026-03-29)
+### Contributions summary (2025-03-30 → 2026-03-30)
 - Total contributions: **126**
 - Commits: **27**, Issues: **0**, PRs: **1**, Reviews: **0**
 - Repositories contributed to: **1**
