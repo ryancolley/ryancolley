@@ -4,8 +4,8 @@
     "name": null
   },
   "range": {
-    "from": "2025-04-11",
-    "to": "2026-04-11"
+    "from": "2025-04-13",
+    "to": "2026-04-12"
   },
   "totals": {
     "calendar_total": 126,
@@ -37,16 +37,6 @@
     "reviews": []
   },
   "calendar_days": [
-    {
-      "date": "2025-04-11",
-      "count": 0,
-      "level": "NONE"
-    },
-    {
-      "date": "2025-04-12",
-      "count": 0,
-      "level": "NONE"
-    },
     {
       "date": "2025-04-13",
       "count": 0,
@@ -1864,6 +1854,11 @@
     },
     {
       "date": "2026-04-11",
+      "count": 0,
+      "level": "NONE"
+    },
+    {
+      "date": "2026-04-12",
       "count": 0,
       "level": "NONE"
     }
