@@ -1,5 +1,5 @@
-### Contributions summary (2025-05-12 → 2026-05-12)
-- Total contributions: **126**
+### Contributions summary (2025-05-13 → 2026-05-13)
+- Total contributions: **125**
 - Commits: **27**, Issues: **0**, PRs: **1**, Reviews: **0**
 - Repositories contributed to: **1**
 
@@ -9,7 +9,7 @@
 - 👁️ Code review: **0%**
 - 🐛 Issues: **0%**
 
-- 🔒 Includes anonymized private/internal activity: **97** (since 2025-05-12)
+- 🔒 Includes anonymized private/internal activity: **96** (since 2025-07-08)
 
 #### Top commit repos
 - **ryancolley/ryancolley**: 27
