@@ -4,8 +4,8 @@
     "name": null
   },
   "range": {
-    "from": "2025-07-24",
-    "to": "2026-07-24"
+    "from": "2025-07-25",
+    "to": "2026-07-25"
   },
   "totals": {
     "calendar_total": 130,
@@ -37,11 +37,6 @@
     "reviews": []
   },
   "calendar_days": [
-    {
-      "date": "2025-07-24",
-      "count": 0,
-      "level": "NONE"
-    },
     {
       "date": "2025-07-25",
       "count": 13,
@@ -1864,6 +1859,11 @@
     },
     {
       "date": "2026-07-24",
+      "count": 0,
+      "level": "NONE"
+    },
+    {
+      "date": "2026-07-25",
       "count": 0,
       "level": "NONE"
     }
