@@ -4,19 +4,19 @@
     "name": null
   },
   "range": {
-    "from": "2025-07-25",
-    "to": "2026-07-25"
+    "from": "2025-07-27",
+    "to": "2026-07-26"
   },
   "totals": {
-    "calendar_total": 130,
+    "calendar_total": 117,
     "commits": 27,
     "issues": 0,
     "pull_requests": 1,
     "reviews": 0,
     "repositories": 1,
     "restricted_contributions_present": true,
-    "restricted_contributions_count": 101,
-    "earliest_restricted_contribution_date": "2025-07-25"
+    "restricted_contributions_count": 88,
+    "earliest_restricted_contribution_date": "2025-07-31"
   },
   "by_repository": {
     "commits": [
@@ -37,16 +37,6 @@
     "reviews": []
   },
   "calendar_days": [
-    {
-      "date": "2025-07-25",
-      "count": 13,
-      "level": "FOURTH_QUARTILE"
-    },
-    {
-      "date": "2025-07-26",
-      "count": 0,
-      "level": "NONE"
-    },
     {
       "date": "2025-07-27",
       "count": 0,
@@ -1864,6 +1854,11 @@
     },
     {
       "date": "2026-07-25",
+      "count": 0,
+      "level": "NONE"
+    },
+    {
+      "date": "2026-07-26",
       "count": 0,
       "level": "NONE"
     }
