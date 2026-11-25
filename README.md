@@ -6,8 +6,8 @@ This profile README updates automatically to showcase my recent personal GitHub 
 
 
 <!--CONTRIB_SUMMARY_START-->
-### Contributions summary (2025-11-24 → 2026-11-24)
-- Total contributions: **94**
+### Contributions summary (2025-11-25 → 2026-11-25)
+- Total contributions: **78**
 - Commits: **27**, Issues: **0**, PRs: **1**, Reviews: **0**
 - Repositories contributed to: **1**
 
@@ -17,7 +17,7 @@ This profile README updates automatically to showcase my recent personal GitHub 
 - 👁️ Code review: **0%**
 - 🐛 Issues: **0%**
 
-- 🔒 Includes anonymized private/internal activity: **65** (since 2025-11-24)
+- 🔒 Includes anonymized private/internal activity: **49** (since 2025-11-25)
 
 #### Top commit repos
 - **ryancolley/ryancolley**: 27
